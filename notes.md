@@ -173,3 +173,105 @@ Range object used for number ranges with same for structure
 0..10 sequence / range (endpoints can be arbitrary expressions)
 
 # Chapter 4
+
+## References and Borrowing
+
+String literals are different than String
+let s2 = s // invalidates s ("move")
+s.clone() will do the deep copy and not invalidate s
+- clone() is explicit call which is good since it's generally more expensive and complex
+
+None of the above matters for simple stack-only types which are all always copied directly anyway
+- Copy trait applied to these types
+- If Drop trait is applied to type (something special needs to happen when goes out of scope), it's a compile error to apply Copy
+- Tuples are not Copy if they contains a value that is not Copy, otherwise they are
+
+Passing non-Copy to function takes ownership
+- Doesn't seem to occur with println!() macro, maybe that has something to do with why it's a macro? Not sure
+
+Function return values transfer ownership as well
+
+print_len(&s) // pass reference to String s
+fn print_len(string: &String) // takes reference to String (does not own, so does not free when goes out of scope)
+This is called "borrowing"
+All references are immutable by default
+
+More than one mutable reference to the same thing can't be used at once!
+- Seems like you can create more than one mutable reference, but using either one when both exist does NOT work
+
+```rust
+let r1 = &mut s1;
+let r2 = &mut s1;
+println!("{}", r1);
+```
+
+- Also can't have a mutable and an immutable
+- Can use curly braces to separate scope of references
+
+Rust won't let you create dangling references like returning reference to something destroyed at end of function for example
+
+## Slice
+
+enumerate() returns tuple of index and reference to original item
+
+s.as_bytes(): convert string to byte array for searching
+String slices: &s[5..10]
+Can drop first or second slice value to mean start or end
+
+String slice type is &str (immutable reference)
+
+can't mutate s because then a mutable and immutable reference would be in use at the same time!
+
+Type of string literal is &str too!
+
+Often better to have function take &str instead of String so literals can easily be used
+then pass String's as &s[..]
+Also, you can slice &str as much as you want to get &str
+
+Also works for arrays:
+let a = [4; 10];
+let b = &a[3..5];
+
+# Chapter 5, Structs
+
+Example
+
+```rust
+struct User {
+    username: String,
+    email: String,
+    sign_in_count: u64,
+    active: bool,
+}
+```
+
+When var and struct field have same name, can just use "username," to init struct field in struct init
+
+struct update syntax (like ocaml "with")
+don't have field names, just ordered types
+can't use one in place of other just because they have same types of elements
+
+Unit-like structs are structs with no fields
+
+In order to store references in structs, you need to learn about lifetimes (like &str)
+
+Printing: "{:?}" means "debug formatting"
+
+to auto-implement Debug trait:
+"#[derive(Debug)]" above struct definition
+
+## Methods
+
+first param is some variant of "self" like "&self" (don't need explicit type annotation, but muast be called self)
+method can also take ownership of self and borrow mutably
+
+"main benefits of methods with auto self parameter is organization in 'impl' is organization"
+
+Rust doesn't have -> for references for example; it automatically takes references as it needs with "."
+the alternative is something like (&mut a).blah(&b) (ew)
+
+Can have function in imp block without self argument, it's an "associated function" and can be accessed with <type>::func()
+
+Can also use multiple impl blocks per type
+
+# Chapter 6: enums and pattern matching
