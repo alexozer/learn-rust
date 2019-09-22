@@ -1,6 +1,6 @@
-# TODO
+# Learn-Rust
 
-What does 0u8 mean?
+A snapshot of my notes / learning experiments with Rust.
 
 # Chapter 1
 
